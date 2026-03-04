@@ -1,10 +1,17 @@
+// lib/supabase.ts
 import { createBrowserClient } from '@supabase/ssr'
 
 export function createClient() {
-  return createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  if (!url || !key) {
+    throw new Error(
+      'Brak zmiennych środowiskowych Supabase. Sprawdź NEXT_PUBLIC_SUPABASE_URL i NEXT_PUBLIC_SUPABASE_ANON_KEY.'
+    )
+  }
+
+  return createBrowserClient(url, key)
 }
 
 export type Message = {
