@@ -1,14 +1,16 @@
-// proxy.ts (wcześniej middleware.ts)
+// proxy.ts
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  if (pathname.startsWith('/midnight')) {
+  if (pathname.startsWith('/midnight') || pathname.startsWith('/admin')) {
     const session = request.cookies.get('am_session')
+
     if (!session || session.value !== 'authenticated') {
-      return NextResponse.redirect(new URL('/', request.url))
+      const loginUrl = new URL('/', request.url)
+      return NextResponse.redirect(loginUrl)
     }
   }
 
@@ -16,5 +18,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/midnight/:path*'],
+  matcher: ['/midnight/:path*', '/admin/:path*'],
 }

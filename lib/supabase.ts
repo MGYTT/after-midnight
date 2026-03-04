@@ -1,17 +1,39 @@
 // lib/supabase.ts
-import { createBrowserClient } from '@supabase/ssr'
+import { createBrowserClient, createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
 
+// Używaj tego w komponentach 'use client' i hookach
 export function createClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  return createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
+}
 
-  if (!url || !key) {
-    throw new Error(
-      'Brak zmiennych środowiskowych Supabase. Sprawdź NEXT_PUBLIC_SUPABASE_URL i NEXT_PUBLIC_SUPABASE_ANON_KEY.'
-    )
-  }
+// Używaj tego w Server Components i Route Handlers
+export async function createServerSupabaseClient() {
+  const cookieStore = await cookies()
 
-  return createBrowserClient(url, key)
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll()
+        },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            )
+          } catch {
+            // Server Component — ignoruj błędy zapisu cookies
+          }
+        },
+      },
+    }
+  )
 }
 
 export type Message = {

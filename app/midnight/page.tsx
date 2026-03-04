@@ -1,18 +1,24 @@
 // app/midnight/page.tsx
-import { createClient } from '@/lib/supabase'
+import { createServerSupabaseClient } from '@/lib/supabase'
 import TimeGate from '@/components/TimeGate'
 import MidnightClient from '@/components/MidnightClient'
 
-// ← To jest kluczowe — wyłącza static prerendering
 export const dynamic = 'force-dynamic'
 
 async function getMessages() {
-  const supabase = createClient()
-  const { data } = await supabase
-    .from('messages')
-    .select('*')
-    .order('published_at', { ascending: false })
-  return data ?? []
+  try {
+    const supabase = await createServerSupabaseClient()
+    const { data, error } = await supabase
+      .from('messages')
+      .select('*')
+      .order('published_at', { ascending: false })
+
+    if (error) throw error
+    return data ?? []
+  } catch (err) {
+    console.error('Supabase error:', err)
+    return []
+  }
 }
 
 export default async function MidnightPage() {
