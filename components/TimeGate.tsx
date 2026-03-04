@@ -4,11 +4,7 @@ import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { isWithinNightHours, getTimeUntilMidnight } from '@/lib/timeUtils'
 
-interface Props {
-  children: React.ReactNode
-}
-
-export default function TimeGate({ children }: Props) {
+export default function TimeGate({ children }: { children: React.ReactNode }) {
   const [isNight, setIsNight] = useState<boolean | null>(null)
   const [countdown, setCountdown] = useState('')
 
@@ -18,62 +14,52 @@ export default function TimeGate({ children }: Props) {
       setCountdown(getTimeUntilMidnight())
     }
     check()
-    const interval = setInterval(check, 60000)
+    const interval = setInterval(check, 30000)
     return () => clearInterval(interval)
   }, [])
 
-  if (isNight === null) return null // SSR guard
+  if (isNight === null) return null
 
   if (!isNight) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center">
-        {/* Blurred content hint */}
-        <div
-          className="fixed inset-0 pointer-events-none"
-          style={{
-            background: 'radial-gradient(ellipse at center, #0f0a0800 0%, #080808 70%)',
-          }}
-        />
-        <div
-          className="fixed inset-0 pointer-events-none blur-2xl opacity-10"
-          style={{
-            background: `repeating-linear-gradient(
-              0deg,
-              transparent,
-              transparent 2px,
-              #c9a84c08 2px,
-              #c9a84c08 4px
-            )`,
-          }}
-        />
-
+      <div className="min-h-screen bg-[#080808] flex flex-col items-center justify-center px-6 text-center">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 2 }}
-          className="relative z-10 max-w-xs"
+          transition={{ duration: 3 }}
+          className="max-w-xs"
         >
-          <p className="text-[10px] tracking-[0.4em] text-[#2a2520] uppercase mb-8">
-            jeszcze nie czas
-          </p>
+          {/* Ikona księżyca */}
+          <motion.div
+            animate={{ opacity: [0.3, 0.7, 0.3] }}
+            transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+            className="text-4xl mb-12 select-none"
+          >
+            ◐
+          </motion.div>
 
-          <h2 className="font-serif text-4xl italic text-[#e8e0d4]/30 mb-8 font-light">
-            After Midnight
+          <h2 className="font-serif text-4xl italic font-light text-[#e8e0d4]/20 mb-6">
+            Jeszcze nie czas.
           </h2>
 
-          <p className="text-sm text-[#3a3530] leading-relaxed mb-10">
-            Ta strona otwiera się o 22:00.<br />
-            Wróć gdy zapadnie noc.
+          <p className="text-[12px] leading-relaxed text-[#3a3530] mb-12 font-light">
+            Ta strona budzi się o 22:00.<br />
+            Wróć gdy świat ucichnie.
           </p>
 
-          <div className="flex flex-col items-center gap-2">
-            <p className="text-[10px] tracking-[0.3em] text-[#2a2520] uppercase">
-              do otwarcia
-            </p>
-            <p className="font-serif text-2xl text-[#c9a84c]/40 font-light">
+          {/* Odliczanie */}
+          <div className="inline-flex flex-col items-center gap-2 px-8 py-5 border border-[#1a1814]">
+            <span className="text-[9px] tracking-[0.4em] text-[#2a2520] uppercase">
+              za
+            </span>
+            <span className="font-serif text-3xl text-[#c9a84c]/30 font-light tracking-wider">
               {countdown}
-            </p>
+            </span>
           </div>
+
+          <p className="mt-12 text-[9px] tracking-[0.4em] text-[#1a1814] uppercase">
+            22:00 — 7:30
+          </p>
         </motion.div>
       </div>
     )
