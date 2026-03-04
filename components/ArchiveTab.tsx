@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { isOlderThan14Days } from '@/lib/timeUtils'
-import type { Message } from '@/lib/supabase'
+import type { Message } from '@/lib/supabase-client'
 
 interface Props {
   messages: Message[]

@@ -5,7 +5,8 @@ import { motion } from 'framer-motion'
 import TypewriterText from './TypewriterText'
 import HoldReveal from './HoldReveal'
 import AudioPlayer from './AudioPlayer'
-import type { Message } from '@/lib/supabase'
+import type { Message } from '@/lib/supabase-client'
+
 
 interface Props {
   message: Message

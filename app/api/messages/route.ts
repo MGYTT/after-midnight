@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerSupabaseClient } from '@/lib/supabase'
+import { createServerSupabaseClient } from '@/lib/supabase-server'
 
 export const dynamic = 'force-dynamic'
 
@@ -10,7 +10,6 @@ export async function GET() {
       .from('messages')
       .select('*')
       .order('published_at', { ascending: false })
-
     if (error) throw error
     return NextResponse.json(data ?? [])
   } catch (err) {
@@ -19,30 +18,18 @@ export async function GET() {
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
     const supabase = await createServerSupabaseClient()
-    const body = await request.json()
-    const { title, main_text, hidden_text, audio_url } = body
-
+    const { title, main_text, hidden_text, audio_url } = await req.json()
     if (!title || !main_text) {
-      return NextResponse.json(
-        { error: 'title i main_text są wymagane' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Brak wymaganych pól' }, { status: 400 })
     }
-
     const { data, error } = await supabase
       .from('messages')
-      .insert([{
-        title,
-        main_text,
-        hidden_text: hidden_text ?? null,
-        audio_url: audio_url ?? null,
-      }])
+      .insert([{ title, main_text, hidden_text: hidden_text ?? null, audio_url: audio_url ?? null }])
       .select()
       .single()
-
     if (error) throw error
     return NextResponse.json(data, { status: 201 })
   } catch (err) {
@@ -51,21 +38,12 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function DELETE(request: NextRequest) {
+export async function DELETE(req: NextRequest) {
   try {
     const supabase = await createServerSupabaseClient()
-    const { searchParams } = new URL(request.url)
-    const id = searchParams.get('id')
-
-    if (!id) {
-      return NextResponse.json({ error: 'id jest wymagane' }, { status: 400 })
-    }
-
-    const { error } = await supabase
-      .from('messages')
-      .delete()
-      .eq('id', id)
-
+    const id = new URL(req.url).searchParams.get('id')
+    if (!id) return NextResponse.json({ error: 'Brak id' }, { status: 400 })
+    const { error } = await supabase.from('messages').delete().eq('id', id)
     if (error) throw error
     return NextResponse.json({ ok: true })
   } catch (err) {
