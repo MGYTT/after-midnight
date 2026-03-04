@@ -1,27 +1,29 @@
-'use client'
+// app/midnight/page.tsx
+import { createClient } from '@/lib/supabase'
+import TimeGate from '@/components/TimeGate'
+import MidnightClient from '@/components/MidnightClient'
 
-import { useEffect, useState } from 'react'
-import { createClient, type Message } from '@/lib/supabase'
+async function getMessages() {
+  const supabase = createClient()
+  const { data } = await supabase
+    .from('messages')
+    .select('*')
+    .order('published_at', { ascending: false })
+  return data ?? []
+}
 
-export function useMessages(initial: Message[]) {
-  const [messages, setMessages] = useState<Message[]>(initial)
+// ← 'export default' jest wymagane przez Next.js App Router
+export default async function MidnightPage() {
+  const messages = await getMessages()
 
-  useEffect(() => {
-    const supabase = createClient()
+  const firstDate =
+    messages.length > 0
+      ? messages[messages.length - 1].published_at
+      : new Date().toISOString()
 
-    const channel = supabase
-      .channel('messages-realtime')
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'messages' },
-        (payload) => {
-          setMessages((prev) => [payload.new as Message, ...prev])
-        }
-      )
-      .subscribe()
-
-    return () => { supabase.removeChannel(channel) }
-  }, [])
-
-  return messages
+  return (
+    <TimeGate>
+      <MidnightClient initialMessages={messages} />
+    </TimeGate>
+  )
 }

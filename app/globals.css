@@ -1,7 +1,12 @@
-@import "tailwindcss";
+/* app/globals.css */
 
+/* 1. Fonty — MUSZĄ być pierwsze */
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Inter:wght@300;400&display=swap');
 
+/* 2. Tailwind */
+@import "tailwindcss";
+
+/* 3. Reszta */
 :root {
   --gold: #c9a84c;
   --gold-dim: #8a6f30;
@@ -29,10 +34,8 @@ body {
   font-family: 'Cormorant Garamond', Georgia, serif;
 }
 
-/* Scrollbar */
 ::-webkit-scrollbar { width: 0px; }
 
-/* Selection */
 ::selection {
   background: var(--gold-dim);
   color: var(--bg);
