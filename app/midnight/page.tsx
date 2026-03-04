@@ -2,10 +2,10 @@
 
 import { useMessages } from '@/hooks/useMessages'
 import { type Message } from '@/lib/supabase-client'
-import MessageCard from './MessageCard'
-import ArchiveTab from './ArchiveTab'
-import NightClock from './NightClock'
-import AmbientBackground from './AmbientBackground'
+import MessageCard from '@/components/MessageCard'
+import ArchiveTab from '@/components/ArchiveTab'
+import NightClock from '@/components/NightClock'
+import AmbientBackground from '@/components/AmbientBackground'
 import { motion } from 'framer-motion'
 
 interface Props {
